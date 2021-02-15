@@ -116,6 +116,59 @@ Exit:
 
 IterativeMax:
     #TODO: write your code here, $a0 stores the address of the array, $a1 stores the length of the array
+    
+    # save stack
+    addiu $sp, $sp, -20
+    sw $s0, 0($sp)
+    sw $s1, 4($sp)
+    sw $s2, 8($sp)
+    sw $s3, 12($sp)
+    sw $ra, 16($sp)
+
+    move $s0, $a0 # address
+    move $s1, $a1 # array length
+    li $s2, 0 # index i
+    lw $s3, 0($s0) # max (start with first element in array) 
+
+loop:
+    # check if index i is equal to length
+    beq $s1, $s2, loop_exit
+    sll $t0, $s2, 2
+    add $t1, $s0, $t0
+    lw $t2, 0($t1)
+    
+    # check if max > element; if false, make element new max
+    bgt $s3, $t2, print_max
+    move $s3, $t2
+print_max:
+    li $v0, 1
+    move $a0, $t2
+    syscall
+
+    li $v0, 4
+    la $a0, newline
+    syscall
+
+    li $v0, 1
+    move $a0, $s3
+    syscall
+
+    jal ConventionCheck
+
+    # increment loop
+    addi $s2, $s2, 1
+    
+    # loop back
+    j loop
+
+loop_exit:
+    # pop stack
+    lw $s0, 0($sp)
+    lw $s1, 4($sp)
+    lw $s2, 8($sp)
+    lw $s3, 12($sp)
+    lw $ra, 16($sp)
+    addiu $sp, $sp, 20
 
     # Do not remove this line
     jr      $ra
